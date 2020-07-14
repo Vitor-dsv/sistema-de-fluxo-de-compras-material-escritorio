@@ -7,9 +7,9 @@
 
 ## Comandos nessários para a instalar/subir o sistema:
 
-# Back-end:
+### Back-end:
 - Para subir a API, é necessário utilizar uma IDE configurando o comando "spring-boot:run", ou possuir o maven instalado e rodar o comando "mvn spring-boot:run"
 
-# Front-End:
+### Front-End:
 - Para instalação dos pacotes necessários, realizar o comando "npm install -g".
 - Para subir "npm run start".
