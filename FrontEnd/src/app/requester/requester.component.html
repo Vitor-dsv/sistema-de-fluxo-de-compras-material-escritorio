@@ -1,0 +1,50 @@
+<nz-layout>
+    <nz-header>
+        <ul nz-menu nzTheme="dark" nzMode="horizontal">
+            <li nz-menu-item nzSelected>
+                <i nz-icon nzType="user" class="icon-title" nzTheme="outline"></i>
+                Fluxo de compras
+            </li>
+        </ul>
+    </nz-header>
+    <nz-content>
+        <div class="inner-content">
+            <!-- *ngIf="this.tipoUsuarioCorrente === 'SOLICITANTE'" -->
+            <div>
+                <nz-table #editRowTable [nzData]="listaSolicitante">
+                    <thead>
+                        <tr>
+                            <th nzWidth="10%">
+                                <i class="icon-column" nz-icon nzType="expand" nzTheme="outline"></i>
+                            </th>
+                            <th nzWidth="20%">
+                                <i class="icon-column" nz-icon nzType="solution" nzTheme="outline"></i>
+                                Nome solicitante
+                            </th>
+                            <th>
+                                <i class="icon-column" nz-icon nzType="message" nzTheme="outline"></i>
+                                Descrição do item
+                            </th>
+                            <th nzWidth="13%">
+                                <i class="icon-column" nz-icon nzType="shopping-cart" nzTheme="outline"></i>
+                                Preço
+                            </th>
+                            <th nzWidth="3%">
+                                <i class="icon-add" nz-icon nzType="plus-circle" nzTheme="outline"></i>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let solicitacao of editRowTable.data" class="editable-row">
+                            <td>{{ solicitacao.id }}</td>
+                            <td>{{ solicitacao.nomeSolicitante }}</td>
+                            <td>{{ solicitacao.descricaoItem }}</td>
+                            <td>{{ solicitacao.preco }}</td>
+                            <td></td>
+                        </tr>
+                    </tbody>
+                </nz-table>
+            </div>
+        </div>
+    </nz-content>
+</nz-layout>
