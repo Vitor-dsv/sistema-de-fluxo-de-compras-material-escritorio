@@ -39,3 +39,11 @@ nz-content {
     -ms-transition: all ease 0.5s;
     color: red;
 }
+
+[nz-form] {
+    margin-bottom: 10px;
+}
+
+.botao-sair {
+    left: 82%;
+}

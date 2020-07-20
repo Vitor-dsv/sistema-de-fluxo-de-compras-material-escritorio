@@ -25,6 +25,12 @@ public class Usuario {
     private Long id;
 
     @Column
+    private String login;
+
+    @Column
+    private String senha;
+
+    @Column
     private String nome;
 
     @Column

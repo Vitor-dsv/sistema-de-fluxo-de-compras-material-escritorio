@@ -1,5 +1,5 @@
 export enum StatusCompra {
-    AGUARDANDO,
-    APROVADO,
-    REPROVADO
+    AGUARDANDO = 'AGUARDANDO',
+    APROVADO = 'APROVADO',
+    REPROVADO = 'REPROVADO'
 };

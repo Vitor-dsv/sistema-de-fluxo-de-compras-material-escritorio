@@ -29,7 +29,7 @@ const icons: IconDefinition[] = Object.keys(antDesignIcons).map(key => antDesign
   declarations: [
     AppComponent,
     LoginComponent,
-    RequesterComponent
+    RequesterComponent,
   ],
   imports: [
     BrowserModule,

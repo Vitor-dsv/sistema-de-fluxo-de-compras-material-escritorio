@@ -3,15 +3,239 @@
         <ul nz-menu nzTheme="dark" nzMode="horizontal">
             <li nz-menu-item nzSelected>
                 <i nz-icon nzType="user" class="icon-title" nzTheme="outline"></i>
-                Fluxo de compras
+                {{ tituloPagina }}
+            </li>
+            <li nz-menu-item class="botao-sair" (click)="voltarParaLogin()">
+                <i nz-icon nzType="wallet" nzTheme="outline" style="font-size: 25px;"></i>
             </li>
         </ul>
     </nz-header>
     <nz-content>
         <div class="inner-content">
-            <!-- *ngIf="this.tipoUsuarioCorrente === 'SOLICITANTE'" -->
-            <div>
-                <nz-table #editRowTable [nzData]="listaSolicitante">
+            <!-- Página do Solicitante -->
+            <div *ngIf="this.tipoUsuarioCorrente == 'SOLICITANTE'">
+                <nz-table #editRowTable [nzData]="listaSolicitacoes" [nzPageSize]="7">
+                    <thead>
+                        <tr>
+                            <th nzWidth="10%">
+                                <i class="icon-column" nz-icon nzType="expand" nzTheme="outline"></i>
+                            </th>
+                            <th>
+                                <i class="icon-column" nz-icon nzType="message" nzTheme="outline"></i>
+                                Descrição do item
+                            </th>
+                            <th nzWidth="13%">
+                                <i class="icon-column" nz-icon nzType="shopping-cart" nzTheme="outline"></i>
+                                Preço
+                            </th>
+                            <th nzWidth="3%">
+                                <i class="icon-add" nz-icon nzType="plus-circle" nzTheme="outline"
+                                    (click)="modificarVisibilidadeModal('modalCompra', true)"></i>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let solicitacao of editRowTable.data" class="editable-row">
+                            <td>{{ solicitacao.id }}</td>
+                            <td>{{ solicitacao.descricao }}</td>
+                            <td>{{ solicitacao.preco | currency}}</td>
+                            <td></td>
+                        </tr>
+                    </tbody>
+
+                    <!-- Modal cadastro de Compras -->
+                    <nz-modal [(nzVisible)]="modalCompra" [nzTitle]="modalTitle" [nzContent]="conteudoModal"
+                        [nzFooter]="footerModal" (nzOnCancel)="modificarVisibilidadeModal('modalCompra', false)">
+
+                        <ng-template #modalTitle>
+                            Cadastrar compra
+                        </ng-template>
+
+                        <ng-template #conteudoModal>
+                            <form nz-form [formGroup]="addSolicitacaoForm">
+                                <nz-form-item>
+                                    <nz-form-label [nzSm]="8" [nzXs]="26" nzRequired>Valor da compra
+                                    </nz-form-label>
+                                    <nz-form-control [nzSm]="14" [nzXs]="24">
+                                        <nz-input-number [nzMax]="9999999" [nzFormatter]="formatoReal"
+                                            [nzParser]="analisarReal" formControlName="valorItem">
+                                        </nz-input-number>
+                                    </nz-form-control>
+                                </nz-form-item>
+                                <nz-form-item>
+                                    <nz-form-label [nzSm]="8" [nzXs]="26" nzRequired>Descrição do item
+                                    </nz-form-label>
+                                    <nz-form-control>
+                                        <nz-input-group>
+                                            <textarea nz-input rows="6" formControlName="descricaoItem"></textarea>
+                                        </nz-input-group>
+                                    </nz-form-control>
+                                </nz-form-item>
+                            </form>
+                        </ng-template>
+
+                        <ng-template #footerModal>
+                            <button nz-button nzType="default"
+                                (click)="modificarVisibilidadeModal('modalCompra', false)">Cancelar</button>
+                            <button nz-button nzType="primary" (click)="cadastrarSolicitacao()"
+                                [nzLoading]="carregamentoBotaoCadastro"
+                                [disabled]="addSolicitacaoForm.invalid">Cadastrar</button>
+                        </ng-template>
+                    </nz-modal>
+                </nz-table>
+            </div>
+
+            <!-- Página do Almoxarife -->
+            <div *ngIf="this.tipoUsuarioCorrente == 'AlMOXARIFE'">
+                <nz-table #editRowTable [nzData]="listaSolicitacoes" [nzPageSize]="7">
+                    <thead>
+                        <tr>
+                            <th nzWidth="20%">
+                                <i class="icon-column" nz-icon nzType="solution" nzTheme="outline"></i>
+                                Nome solicitante
+                            </th>
+                            <th>
+                                <i class="icon-column" nz-icon nzType="message" nzTheme="outline"></i>
+                                Descrição do item
+                            </th>
+                            <th nzWidth="12%">
+                                <i class="icon-column" nz-icon nzType="shopping-cart" nzTheme="outline"></i>
+                                Preço
+                            </th>
+                            <th nzWidth="8%">
+                                <i nz-icon nzType="unlock" nzTheme="outline"></i>
+                                Status
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let solicitacaoCompra of editRowTable.data" class="editable-row">
+                            <td>{{ solicitacaoCompra.usuarioNome }}</td>
+                            <td>{{ solicitacaoCompra.descricao }}</td>
+                            <td>{{ solicitacaoCompra.preco| currency }}</td>
+                            <td *ngIf="solicitacaoCompra.statusCompra == 'AGUARDANDO'">
+                                <a>
+                                    <i nz-icon nzType="like" nzTooltipTitle="Aprovar compra..."
+                                        nzTooltipPlacement="bottom" nz-tooltip
+                                        (click)="atualizarStatusSolicitacao('APROVADO', solicitacaoCompra);"
+                                        style="font-size: 20px;margin-right: 15px;" [nzTheme]="'twotone'"
+                                        [nzTwotoneColor]="'#52c41a'">
+                                    </i>
+                                </a>
+                                <a nz-popconfirm nzTitle="Tem certeza que deseja reprovar?"
+                                    nzPopconfirmPlacement="bottom" nzTooltipTitle="Reprovar compra..."
+                                    nzTooltipPlacement="bottom" nz-tooltip
+                                    (nzOnConfirm)="modificarVisibilidadeModal('modalReprovacao', true);">
+                                    <i nz-icon nzType="dislike" nzTheme="outline" style="font-size: 20px;"
+                                        [nzTheme]="'twotone'" [nzTwotoneColor]="'red'"></i>
+                                </a>
+
+                                <!-- Modal de reprovação -->
+                                <nz-modal [(nzVisible)]="modalReprovacao" [nzTitle]="modalTitle"
+                                    [nzContent]="conteudoModal" [nzFooter]="footerModal"
+                                    (nzOnCancel)="modificarVisibilidadeModal('modalReprovacao', false)">
+
+                                    <ng-template #modalTitle>
+                                        Reprovar compra
+                                    </ng-template>
+
+                                    <ng-template #conteudoModal>
+                                        <form nz-form [formGroup]="editReprovaSolicitacaoForm">
+                                            <nz-form-item>
+                                                <nz-form-label [nzSm]="8" [nzXs]="26" nzRequired>Descrição reprovação
+                                                </nz-form-label>
+                                                <nz-form-control>
+                                                    <nz-input-group>
+                                                        <textarea nz-input rows="6"
+                                                            formControlName="descricaoReprovacao"></textarea>
+                                                    </nz-input-group>
+                                                </nz-form-control>
+                                            </nz-form-item>
+                                        </form>
+                                    </ng-template>
+                                    <ng-template #footerModal>
+                                        <button nz-button nzType="default"
+                                            (click)="modificarVisibilidadeModal('modalReprovacao', false)">Cancelar</button>
+                                        <button nz-button nzType="primary" [nzLoading]="carregamentoBotaoCadastro"
+                                            [disabled]="editReprovaSolicitacaoForm.invalid"
+                                            (click)="atualizarStatusSolicitacao('REPROVADO', solicitacaoCompra);">Reprovar</button>
+                                    </ng-template>
+                                </nz-modal>
+                            </td>
+                            <td *ngIf="solicitacaoCompra.statusCompra == 'APROVADO'">
+                                <i nz-icon [nzType]="'check-circle'" [nzTheme]="'twotone'" [nzTwotoneColor]="'#52c41a'"
+                                    style="font-size: 25px;" nzTooltipTitle="Compra aprovada"
+                                    nzTooltipPlacement="bottom" nz-tooltip></i>
+                            </td>
+                            <td *ngIf="solicitacaoCompra.statusCompra == 'REPROVADO'">
+                                <i nz-icon nzType="stop" nzTooltipTitle="Compra reprovada" nzTooltipPlacement="bottom"
+                                    nz-tooltip nzTheme="outline" [nzTheme]="'twotone'" [nzTwotoneColor]="'red'"
+                                    style="font-size: 25px;margin-right: 15px"></i>
+                                <a>
+                                    <i nz-icon nzTooltipTitle="descrição da reprovação..." nzTooltipPlacement="bottom"
+                                        nz-tooltip nzType="message" nzTheme="outline" style="font-size: 25px;"
+                                        (click)="modificarVisibilidadeModal('modalDescricaoReprovacao', true)"></i>
+                                </a>
+
+                                <!-- Modal de descrição de reprovação -->
+                                <nz-modal [(nzVisible)]="modalDescricaoReprovacao" nzTitle="Descrição da Reprovação"
+                                    [nzContent]="contentDescricao" [nzFooter]="footerDescricao"
+                                    (nzOnCancel)="modificarVisibilidadeModal('modalDescricaoReprovacao', false)">
+                                    <ng-template #contentDescricao>
+                                        <p>{{ solicitacaoCompra.observacaoReprovacao }}</p>
+                                    </ng-template>
+                                    <ng-template #footerDescricao>
+                                        <button nz-button nzType="primary"
+                                            (click)="modificarVisibilidadeModal('modalDescricaoReprovacao', false)">
+                                            Fechar
+                                        </button>
+                                    </ng-template>
+                                </nz-modal>
+                            </td>
+                        </tr>
+                    </tbody>
+                </nz-table>
+            </div>
+
+            <!-- Página do Administrativo -->
+            <div *ngIf="this.tipoUsuarioCorrente == 'ADMINISTRATIVO'">
+                <!-- Filtro -->
+                <form nz-form [nzLayout]="'inline'" [formGroup]="filtroSolicitacoesForm">
+                    <nz-form-item>
+                        <nz-form-control>
+                            <nz-input-group>
+                                <nz-select nzShowSearch nzAllowClear nzPlaceHolder="Status do fluxo"
+                                    formControlName="statusFluxo">
+                                    <nz-option nzLabel="Aguardando" nzValue="Aguardando"></nz-option>
+                                    <nz-option nzLabel="Aprovado" nzValue="Aprovado"></nz-option>
+                                    <nz-option nzLabel="Reprovado" nzValue="Reprovado"></nz-option>
+                                </nz-select>
+                            </nz-input-group>
+                        </nz-form-control>
+                    </nz-form-item>
+                    <nz-form-item>
+                        <nz-form-control>
+                            <nz-input-group nzPrefixIcon="user">
+                                <input nz-input placeholder="Nome do solicitante" formControlName="nomeSolicitante" />
+                            </nz-input-group>
+                        </nz-form-control>
+                    </nz-form-item>
+                    <nz-form-item>
+                        <nz-input-group nzPrefixIcon="edit">
+                            <input type="text" nz-input placeholder="Descrição do item" formControlName="descricao">
+                        </nz-input-group>
+                    </nz-form-item>
+                    <nz-form-item>
+                        <nz-form-control>
+                            <button nz-button nzType="default" nzShape="circle" (click)="filtrarSolicitacoes()">
+                                <i nz-icon nzType="search" style="font-size: 20px;"></i>
+                            </button>
+                        </nz-form-control>
+                    </nz-form-item>
+                </form>
+
+                <!-- Tabela -->
+                <nz-table #editRowTable [nzData]="listaSolicitacoes" [nzPageSize]="7">
                     <thead>
                         <tr>
                             <th nzWidth="10%">
@@ -25,22 +249,37 @@
                                 <i class="icon-column" nz-icon nzType="message" nzTheme="outline"></i>
                                 Descrição do item
                             </th>
-                            <th nzWidth="13%">
+                            <th nzWidth="12%">
                                 <i class="icon-column" nz-icon nzType="shopping-cart" nzTheme="outline"></i>
                                 Preço
                             </th>
-                            <th nzWidth="3%">
-                                <i class="icon-add" nz-icon nzType="plus-circle" nzTheme="outline"></i>
+                            <th nzWidth="8%">
+                                <i nz-icon nzType="unlock" nzTheme="outline"></i>
+                                Status
                             </th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr *ngFor="let solicitacao of editRowTable.data" class="editable-row">
-                            <td>{{ solicitacao.id }}</td>
-                            <td>{{ solicitacao.nomeSolicitante }}</td>
-                            <td>{{ solicitacao.descricaoItem }}</td>
-                            <td>{{ solicitacao.preco }}</td>
-                            <td></td>
+                        <tr *ngFor="let solicitacaoCompra of editRowTable.data" class="editable-row">
+                            <td>{{ solicitacaoCompra.id }}</td>
+                            <td>{{ solicitacaoCompra.usuarioNome }}</td>
+                            <td>{{ solicitacaoCompra.descricao }}</td>
+                            <td>{{ solicitacaoCompra.preco| currency }}</td>
+                            <td *ngIf="solicitacaoCompra.statusCompra == 'AGUARDANDO'">
+                                <i nz-icon nzType="question-circle" nzTheme="outline" [nzTheme]="'twotone'"
+                                    [nzTwotoneColor]="'blue'" style="font-size: 25px;"
+                                    nzTooltipTitle="Aguardando aprovação" nzTooltipPlacement="bottom" nz-tooltip></i>
+                            </td>
+                            <td *ngIf="solicitacaoCompra.statusCompra == 'APROVADO'">
+                                <i nz-icon [nzType]="'check-circle'" [nzTheme]="'twotone'" [nzTwotoneColor]="'#52c41a'"
+                                    style="font-size: 25px;" nzTooltipTitle="Compra aprovada"
+                                    nzTooltipPlacement="bottom" nz-tooltip></i>
+                            </td>
+                            <td *ngIf="solicitacaoCompra.statusCompra == 'REPROVADO'">
+                                <i nz-icon nzType="stop" nzTooltipTitle="Compra reprovada" nzTooltipPlacement="bottom"
+                                    nz-tooltip nzTheme="outline" [nzTheme]="'twotone'" [nzTwotoneColor]="'red'"
+                                    style="font-size: 25px"></i>
+                            </td>
                         </tr>
                     </tbody>
                 </nz-table>

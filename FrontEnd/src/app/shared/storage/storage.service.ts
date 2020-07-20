@@ -6,20 +6,19 @@ import { TipoUsuario } from 'src/app/domain/TipoUsuario';
 })
 export class StorageService {
 
-    getToken(): string {
-        return window.localStorage.getItem("TOKEN");
+    getTipoUsuario(): TipoUsuario {
+        return TipoUsuario[window.localStorage.getItem("TIPO_USUARIO")];
     }
 
-    setToken(token: string) {
-        window.localStorage.setItem("TOKEN", token);
+    setTipoUsuario(userType: string) {
+        window.localStorage.setItem("TIPO_USUARIO", userType);
     }
 
-    getUserType(): TipoUsuario {
-        return TipoUsuario[window.localStorage.getItem("USER_TYPE")];
+    getIdUsuario(): string {
+        return window.localStorage.getItem("ID_USUARIO");
     }
 
-    setUserType(userType: string) {
-        window.localStorage.setItem("USER_TYPE", userType);
+    setIdUsuario(id: string): void {
+        window.localStorage.setItem("ID_USUARIO", id);
     }
-
 }

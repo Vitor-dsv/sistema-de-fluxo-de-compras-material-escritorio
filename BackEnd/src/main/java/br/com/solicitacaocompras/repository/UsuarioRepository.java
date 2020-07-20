@@ -11,4 +11,13 @@ import java.util.List;
 
 @Repository
 public interface UsuarioRepository extends  JpaRepository<Usuario, Long>{
+
+    @Query("select " +
+                "user " +
+            "from " +
+                "Usuario user " +
+            "where " +
+                "user.login = :login and " +
+                "user.senha = :senha")
+    Usuario buscarUsuario(@Param("login") String login, @Param("senha") String senha);
 }

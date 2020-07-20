@@ -29,4 +29,8 @@ public class UsuarioService {
     public void deleteById(Long id){
         usuarioRepository.deleteById(id);
     }
+
+    public Usuario buscarUsuario(String login, String senha){
+        return usuarioRepository.buscarUsuario(login, senha);
+    }
 }

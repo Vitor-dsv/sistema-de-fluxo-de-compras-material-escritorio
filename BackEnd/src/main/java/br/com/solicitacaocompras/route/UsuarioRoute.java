@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(value="/usuario")
+@CrossOrigin("*")
 public class UsuarioRoute {
 
     @Autowired
@@ -26,7 +27,12 @@ public class UsuarioRoute {
 
     @GetMapping(path = "/{id}")
     public ResponseEntity<?> findById(@PathVariable("id") Long id) {
-        return ResponseEntity.ok(usuarioService.findById(id).get());
+        return ResponseEntity.ok(usuarioService.findById(id));
+    }
+
+    @GetMapping(path = "/login")
+    public ResponseEntity<?> findByUserLogin(@RequestParam(name = "login", required = true) String login, @RequestParam(name = "senha", required = true) String senha){
+        return ResponseEntity.ok(usuarioService.buscarUsuario(login, senha));
     }
 
     @DeleteMapping(path = "/{id}")

@@ -7,7 +7,7 @@ import { RequesterComponent } from './requester/requester.component';
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: '', redirectTo: '/login', pathMatch: 'full' },
-  { path: 'solicitante', component: RequesterComponent },
+  { path: 'fluxo-de-compras', component: RequesterComponent },
 ];
 
 @NgModule({
